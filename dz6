@@ -1,15 +1,151 @@
-Подумать над структурой класса Ноутбук для магазина техники - выделить поля и
-методы. Реализовать в java.
-Создать множество ноутбуков.
-Написать метод, который будет запрашивать у пользователя критерий (или критерии)
-фильтрации и выведет ноутбуки, отвечающие фильтру. Критерии фильтрации можно
-хранить в Map. Например:
-“Введите цифру, соответствующую необходимому критерию:
-1 - ОЗУ
-2 - Объем ЖД
-3 - Операционная система
-4 - Цвет …
-Далее нужно запросить минимальные значения для указанных критериев - сохранить
-параметры фильтрации можно также в Map.
-Отфильтровать ноутбуки их первоначального множества и вывести проходящие по
-условиям.
+import java.util.*;
+
+class Notebook {
+    private String brand;
+    private int ramSizeGB;
+    private int storageSizeGB;
+    private String operatingSystem;
+    private String color;
+
+    // Конструктор
+    public Notebook(String brand, int ramSizeGB, int storageSizeGB, String operatingSystem, String color) {
+        this.brand = brand;
+        this.ramSizeGB = ramSizeGB;
+        this.storageSizeGB = storageSizeGB;
+        this.operatingSystem = operatingSystem;
+        this.color = color;
+    }
+
+    // Геттеры
+    public String getBrand() {
+        return brand;
+    }
+
+    public int getRamSizeGB() {
+        return ramSizeGB;
+    }
+
+    public int getStorageSizeGB() {
+        return storageSizeGB;
+    }
+
+    public String getOperatingSystem() {
+        return operatingSystem;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    @Override
+    public String toString() {
+        return "Notebook{" +
+                "brand='" + brand + '\'' +
+                ", ramSizeGB=" + ramSizeGB +
+                ", storageSizeGB=" + storageSizeGB +
+                ", operatingSystem='" + operatingSystem + '\'' +
+                ", color='" + color + '\'' +
+                '}';
+    }
+}
+
+public class NotebookStore {
+    public static void main(String[] args) {
+        // Создание множества ноутбуков
+        Set<Notebook> notebooks = new HashSet<>();
+        notebooks.add(new Notebook("Brand1", 8, 256, "OS1", "Blue"));
+        notebooks.add(new Notebook("Brand2", 16, 512, "OS2", "Black"));
+        notebooks.add(new Notebook("Brand3", 8, 512, "OS1", "White"));
+        notebooks.add(new Notebook("Brand4", 16, 256, "OS3", "Silver"));
+
+        // Запрос критериев фильтрации от пользователя
+        Map<String, Object> filterCriteria = new HashMap<>();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Введите цифру, соответствующую критерию фильтрации:");
+        System.out.println("1 - ОЗУ");
+        System.out.println("2 - Объем ЖД");
+        System.out.println("3 - Операционная система");
+        System.out.println("4 - Цвет");
+
+        int criterion = scanner.nextInt();
+
+        switch (criterion) {
+            case 1:
+                System.out.println("Введите минимальный объем ОЗУ (в GB):");
+                int minRamSize = scanner.nextInt();
+                filterCriteria.put("ramSizeGB", minRamSize);
+                break;
+            case 2:
+                System.out.println("Введите минимальный объем ЖД (в GB):");
+                int minStorageSize = scanner.nextInt();
+                filterCriteria.put("storageSizeGB", minStorageSize);
+                break;
+            case 3:
+                System.out.println("Введите требуемую операционную систему:");
+                String requiredOS = scanner.next();
+                filterCriteria.put("operatingSystem", requiredOS);
+                break;
+            case 4:
+                System.out.println("Введите требуемый цвет:");
+                String requiredColor = scanner.next();
+                filterCriteria.put("color", requiredColor);
+                break;
+            default:
+                System.out.println("Некорректный ввод.");
+                return;
+        }
+
+        // Фильтрация ноутбуков
+        Set<Notebook> filteredNotebooks = filterNotebooks(notebooks, filterCriteria);
+
+        // Вывод результатов
+        System.out.println("Результаты фильтрации:");
+        for (Notebook notebook : filteredNotebooks) {
+            System.out.println(notebook);
+        }
+    }
+
+    // Метод для фильтрации ноутбуков
+    private static Set<Notebook> filterNotebooks(Set<Notebook> notebooks, Map<String, Object> filterCriteria) {
+        Set<Notebook> filteredNotebooks = new HashSet<>();
+
+        for (Notebook notebook : notebooks) {
+            boolean isMatch = true;
+
+            for (Map.Entry<String, Object> entry : filterCriteria.entrySet()) {
+                String criterion = entry.getKey();
+                Object value = entry.getValue();
+
+                switch (criterion) {
+                    case "ramSizeGB":
+                        if (notebook.getRamSizeGB() < (int) value) {
+                            isMatch = false;
+                        }
+                        break;
+                    case "storageSizeGB":
+                        if (notebook.getStorageSizeGB() < (int) value) {
+                            isMatch = false;
+                        }
+                        break;
+                    case "operatingSystem":
+                        if (!notebook.getOperatingSystem().equalsIgnoreCase((String) value)) {
+                            isMatch = false;
+                        }
+                        break;
+                    case "color":
+                        if (!notebook.getColor().equalsIgnoreCase((String) value)) {
+                            isMatch = false;
+                        }
+                        break;
+                }
+            }
+
+            if (isMatch) {
+                filteredNotebooks.add(notebook);
+            }
+        }
+
+        return filteredNotebooks;
+    }
+}
